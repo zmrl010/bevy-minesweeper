@@ -7,10 +7,9 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        window: WindowDescriptor {
+        window: Window {
             title: "Mine Sweeper".to_string(),
-            width: 700.0,
-            height: 800.0,
+            resolution: (700.0, 800.0).into(),
             ..Default::default()
         },
         ..Default::default()
