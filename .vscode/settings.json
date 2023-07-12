@@ -4,6 +4,5 @@
   ],
   "rust-analyzer.cargo.features": [
     "default",
-    "debug"
   ]
 }

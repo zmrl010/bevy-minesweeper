@@ -7,12 +7,12 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        window: Window {
+        primary_window: Some(Window {
             title: "Mine Sweeper".to_string(),
             resolution: (700.0, 800.0).into(),
-            ..Default::default()
-        },
-        ..Default::default()
+            ..default()
+        }),
+        ..default()
     }));
 
     #[cfg(feature = "debug")]
