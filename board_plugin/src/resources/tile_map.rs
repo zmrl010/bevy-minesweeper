@@ -1,8 +1,30 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::{Add, Deref, DerefMut};
 
 use crate::components::Coordinates;
 use crate::resources::tile::Tile;
 use rand::{thread_rng, Rng};
+
+/// Delta coordinates for all 8 square neighbors
+const SQUARE_COORDINATES: [(i8, i8); 8] = [
+    // Bottom left
+    (-1, -1),
+    // Bottom
+    (0, -1),
+    // Bottom right
+    (1, -1),
+    // Left
+    (-1, 0),
+    // Right
+    (1, 0),
+    // Top Left
+    (-1, 1),
+    // Top
+    (0, 1),
+    // Top right
+    (1, 1),
+];
+
+enum Delta {}
 
 #[derive(Debug, Clone)]
 pub struct TileMap {
@@ -28,6 +50,13 @@ impl TileMap {
         }
     }
 
+    pub fn safe_square_at(&self, coordinates: Coordinates) -> impl Iterator<Item = Coordinates> {
+        SQUARE_COORDINATES
+            .iter()
+            .copied()
+            .map(move |tuple| coordinates + tuple)
+    }
+
     #[cfg(feature = "debug")]
     pub fn console_output(&self) -> String {
         let Self {
@@ -49,7 +78,27 @@ impl TileMap {
             buffer = format!("{buffer}|\n");
         }
 
-        format!("{}{}", buffer, line)
+        format!("{buffer}{line}")
+    }
+
+    pub fn is_bomb_at(&self, coordinates: Coordinates) -> bool {
+        if coordinates.x >= self.width || coordinates.y >= self.height {
+            return false;
+        };
+        self.map[coordinates.y as usize][coordinates.x as usize].is_bomb()
+    }
+
+    pub fn bomb_count_at(&self, coordinates: Coordinates) -> u8 {
+        if self.is_bomb_at(coordinates) {
+            return 0;
+        }
+
+        let res = self
+            .safe_square_at(coordinates)
+            .filter(|coord| self.is_bomb_at(*coord))
+            .count();
+
+        res as u8
     }
 
     pub fn set_bombs(&mut self, bomb_count: u16) {
@@ -71,8 +120,30 @@ impl TileMap {
         for y in 0..self.height {
             for x in 0..self.width {
                 let coords = Coordinates { x, y };
+                if self.is_bomb_at(coords) {
+                    continue;
+                }
+
+                let num = self.bomb_count_at(coords);
+                if num == 0 {
+                    continue;
+                }
+
+                let tile = &mut self[y as usize][x as usize];
+                *tile = Tile::BombNeighbor(num)
             }
         }
+    }
+}
+
+impl Add<(i8, i8)> for Coordinates {
+    type Output = Self;
+
+    fn add(self, (x, y): (i8, i8)) -> Self::Output {
+        let x = ((self.x as i16) + x as i16) as u16;
+        let y = ((self.y as i16) + y as i16) as u16;
+
+        Self { x, y }
     }
 }
 

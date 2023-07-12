@@ -9,7 +9,8 @@ pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(Self::create_board);
+        app.add_systems(Startup, Self::create_board);
+
         log::info!("Loaded Board Plugin");
     }
 }
