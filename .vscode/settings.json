@@ -4,5 +4,7 @@
   ],
   "rust-analyzer.cargo.features": [
     "default",
-  ]
+    "debug"
+  ],
+  "stylelint.enable": false
 }

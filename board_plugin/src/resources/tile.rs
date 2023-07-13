@@ -16,18 +16,17 @@ impl Tile {
 
     #[cfg(feature = "debug")]
     pub fn console_output(&self) -> String {
-        format!(
-            "{}",
-            match self {
-                Tile::Bomb => "*".bright_red(),
-                Tile::BombNeighbor(v) => match v {
-                    1 => "1".cyan(),
-                    2 => "2".green(),
-                    3 => "3".yellow(),
-                    _ => v.to_string().red(),
-                },
-                Tile::Empty => " ".normal(),
-            }
-        )
+        let output = match self {
+            Tile::Bomb => "*".bright_red(),
+            Tile::BombNeighbor(v) => match v {
+                1 => "1".cyan(),
+                2 => "2".green(),
+                3 => "3".yellow(),
+                _ => v.to_string().red(),
+            },
+            Tile::Empty => " ".normal(),
+        };
+
+        output.to_string()
     }
 }

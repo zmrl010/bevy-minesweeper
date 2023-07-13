@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use board_plugin::BoardPlugin;
 
 #[cfg(feature = "debug")]
-use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     let mut app = App::new();
