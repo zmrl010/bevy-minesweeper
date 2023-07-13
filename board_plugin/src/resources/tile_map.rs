@@ -47,11 +47,12 @@ impl TileMap {
         }
     }
 
+    ///
     pub fn safe_square_at(&self, coordinates: Coordinates) -> impl Iterator<Item = Coordinates> {
         SQUARE_COORDINATES
             .iter()
             .copied()
-            .map(move |tuple| coordinates + tuple)
+            .map(move |coords| coordinates + coords)
     }
 
     #[cfg(feature = "debug")]
@@ -78,6 +79,7 @@ impl TileMap {
         format!("{buffer}{line}")
     }
 
+    /// Check if the tile at `coordinates` is a bomb
     pub fn is_bomb_at(&self, coordinates: Coordinates) -> bool {
         if coordinates.x >= self.width || coordinates.y >= self.height {
             return false;
@@ -85,32 +87,35 @@ impl TileMap {
         self.map[coordinates.y as usize][coordinates.x as usize].is_bomb()
     }
 
+    /// Count the number of adjacent tiles that are bombs
     pub fn bomb_count_at(&self, coordinates: Coordinates) -> u8 {
         if self.is_bomb_at(coordinates) {
             return 0;
         }
 
         self.safe_square_at(coordinates)
-            .filter(|coord| self.is_bomb_at(*coord))
+            .filter(|coordinates| self.is_bomb_at(*coordinates))
             .count() as u8
     }
 
+    /// Spawn `bomb_count`bombs and randomly place them across the map.
     pub fn set_bombs(&mut self, bomb_count: u16) {
         self.bomb_count = bomb_count;
 
-        let mut remaining_bombs = bomb_count;
         let mut rng = thread_rng();
-
+        let mut remaining_bombs = bomb_count;
+        // place bombs
         while remaining_bombs > 0 {
             let x = rng.gen_range(0..self.width) as usize;
             let y = rng.gen_range(0..self.height) as usize;
 
-            if let Tile::Empty = self[x][y] {
+            if self[y][x] == Tile::Empty {
                 self[y][x] = Tile::Bomb;
                 remaining_bombs -= 1;
             }
         }
 
+        // place bomb neighbors
         for y in 0..self.height {
             for x in 0..self.width {
                 let coords = Coordinates { x, y };
