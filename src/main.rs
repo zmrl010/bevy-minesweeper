@@ -1,25 +1,27 @@
 use bevy::prelude::*;
+use board_plugin::BoardPlugin;
 
 #[cfg(feature = "debug")]
-use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        window: WindowDescriptor {
+        primary_window: Some(Window {
             title: "Mine Sweeper".to_string(),
-            width: 700.0,
-            height: 800.0,
-            ..Default::default()
-        },
-        ..Default::default()
+            resolution: (700.0, 800.0).into(),
+            ..default()
+        }),
+        ..default()
     }));
 
     #[cfg(feature = "debug")]
-    app.add_plugin(WorldInspectorPlugin::new());
+    app.add_plugins(WorldInspectorPlugin::new());
 
-    app.add_startup_system(camera_setup);
+    app.add_plugins(BoardPlugin);
+
+    app.add_systems(Startup, camera_setup);
 
     app.run();
 }
