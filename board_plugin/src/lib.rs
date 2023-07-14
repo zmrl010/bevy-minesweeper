@@ -1,14 +1,16 @@
+mod bounds;
 pub mod components;
 pub mod resources;
 
 use bevy::log;
+use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
 use bevy::text::BreakLineOn;
 use bevy::window::PrimaryWindow;
+use bounds::Bounds2;
 use components::*;
-use resources::tile::Tile;
 pub use resources::BoardOptions;
-use resources::{tile_map::TileMap, BoardPosition, TileSize};
+use resources::{tile::Tile, tile_map::TileMap, Board, BoardPosition, TileSize};
 
 pub struct BoardPlugin;
 
@@ -102,6 +104,15 @@ impl BoardPlugin {
                     font,
                 )
             });
+
+        commands.insert_resource(Board {
+            tile_map,
+            bounds: Bounds2 {
+                position: board_position.xy(),
+                size: board_size,
+            },
+            tile_size,
+        })
     }
 
     /// Compute a tile size that matches the window according to the tile map size
