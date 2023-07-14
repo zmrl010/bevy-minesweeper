@@ -1,6 +1,7 @@
 mod bounds;
 pub mod components;
 pub mod resources;
+mod systems;
 
 use bevy::log;
 use bevy::math::Vec3Swizzles;
@@ -16,7 +17,8 @@ pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, Self::create_board);
+        app.add_systems(Startup, Self::create_board)
+            .add_systems(Update, systems::input::input_handling);
 
         log::info!("Loaded Board Plugin");
 
