@@ -7,6 +7,7 @@ use bevy::window::PrimaryWindow;
 pub use resources::board_options::BoardOptions;
 use resources::tile_map::TileMap;
 
+use crate::components::Coordinates;
 use crate::resources::BoardPosition;
 use crate::resources::TileSize;
 
@@ -60,8 +61,13 @@ impl BoardPlugin {
         };
 
         commands
-            .spawn(Name::new("Board"))
-            .insert(Transform::from_translation(board_position))
+            .spawn_empty()
+            .insert(Name::new("Board"))
+            .insert(SpatialBundle {
+                visibility: Visibility::Visible,
+                transform: Transform::from_translation(board_position),
+                ..default()
+            })
             .insert(GlobalTransform::default())
             .with_children(|parent| {
                 parent
@@ -75,6 +81,32 @@ impl BoardPlugin {
                         ..default()
                     })
                     .insert(Name::new("Background"));
+
+                for (y, line) in tile_map.iter().enumerate() {
+                    for (x, _tile) in line.iter().enumerate() {
+                        parent
+                            .spawn(SpriteBundle {
+                                sprite: Sprite {
+                                    color: Color::GRAY,
+                                    custom_size: Some(Vec2::splat(
+                                        tile_size - options.tile_padding as f32,
+                                    )),
+                                    ..default()
+                                },
+                                transform: Transform::from_xyz(
+                                    (x as f32 * tile_size) + (tile_size / 2.),
+                                    (y as f32 * tile_size) + (tile_size / 2.),
+                                    1.,
+                                ),
+                                ..default()
+                            })
+                            .insert(Name::new(format!("Tile ({x}, {y})")))
+                            .insert(Coordinates {
+                                x: x as u16,
+                                y: y as u16,
+                            });
+                    }
+                }
             });
     }
 

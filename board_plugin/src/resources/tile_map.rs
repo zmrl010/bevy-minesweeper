@@ -113,7 +113,7 @@ impl TileMap {
             .count() as u8
     }
 
-    /// Spawn `bomb_count`bombs and randomly place them across the map.
+    /// Spawn `bomb_count` bombs and randomly place them across the map.
     pub fn set_bombs(&mut self, bomb_count: u16) {
         self.bomb_count = bomb_count;
 
