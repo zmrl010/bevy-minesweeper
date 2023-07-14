@@ -47,7 +47,22 @@ impl TileMap {
         }
     }
 
-    ///
+    /// Getter for width
+    pub fn width(&self) -> u16 {
+        self.width
+    }
+
+    /// Getter for height
+    pub fn height(&self) -> u16 {
+        self.height
+    }
+
+    /// Getter for bomb_count
+    pub fn bomb_count(&self) -> u16 {
+        self.bomb_count
+    }
+
+    /// Get an iterator of tiles adjacent to the one at `coordinates`
     pub fn safe_square_at(&self, coordinates: Coordinates) -> impl Iterator<Item = Coordinates> {
         SQUARE_COORDINATES
             .iter()
@@ -98,7 +113,7 @@ impl TileMap {
             .count() as u8
     }
 
-    /// Spawn `bomb_count`bombs and randomly place them across the map.
+    /// Spawn `bomb_count` bombs and randomly place them across the map.
     pub fn set_bombs(&mut self, bomb_count: u16) {
         self.bomb_count = bomb_count;
 
