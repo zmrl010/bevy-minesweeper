@@ -11,6 +11,7 @@ use bevy::window::PrimaryWindow;
 use bevy::{log, utils::HashMap};
 use bounds::Bounds2;
 use components::*;
+use events::*;
 pub use resources::BoardOptions;
 use resources::{tile::Tile, tile_map::TileMap, Board, BoardPosition, TileSize};
 
@@ -19,7 +20,10 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, Self::create_board)
-            .add_systems(Update, systems::input::input_handling);
+            .add_systems(Update, systems::input::input_handling)
+            .add_systems(Update, systems::uncover::trigger_event_handler)
+            .add_systems(Update, systems::uncover::uncover_tiles)
+            .add_event::<TileTriggerEvent>();
 
         log::info!("Loaded Board Plugin");
 
@@ -87,7 +91,6 @@ impl BoardPlugin {
                 transform: Transform::from_translation(board_position),
                 ..default()
             })
-            .insert(GlobalTransform::default())
             .with_children(|parent| {
                 parent
                     .spawn(SpriteBundle {

@@ -31,5 +31,19 @@ pub fn uncover_tiles(
                 continue;
             }
         };
+
+        match board.try_uncover_tile(coords) {
+            Some(e) => log::debug!("Uncovered tile {} (entity: {:?})", coords, e),
+            None => log::debug!("Tried to uncover an already uncovered tile"),
+        };
+
+        if bomb.is_some() {
+            log::info!("Boom!");
+            todo!("Add explosion event")
+        } else if bomb_counter.is_none() {
+            for entity in board.adjacent_covered_tiles(*coords) {
+                commands.entity(entity).insert(Uncover);
+            }
+        }
     }
 }
