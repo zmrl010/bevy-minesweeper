@@ -83,6 +83,8 @@ impl BoardPlugin {
         let mut covered_tiles =
             HashMap::with_capacity((tile_map.width() * tile_map.height()).into());
 
+        let mut safe_start = None;
+
         commands
             .spawn_empty()
             .insert(Name::new("Board"))
@@ -114,6 +116,7 @@ impl BoardPlugin {
                     font,
                     Color::DARK_GRAY,
                     &mut covered_tiles,
+                    &mut safe_start,
                 )
             });
 
@@ -125,7 +128,13 @@ impl BoardPlugin {
             },
             tile_size,
             covered_tiles,
-        })
+        });
+
+        if options.safe_start {
+            if let Some(entity) = safe_start {
+                commands.entity(entity).insert(Uncover);
+            }
+        }
     }
 
     /// Compute a tile size that matches the window according to the tile map size
@@ -181,6 +190,7 @@ impl BoardPlugin {
         font: Handle<Font>,
         covered_tile_color: Color,
         covered_tiles: &mut HashMap<Coordinates, Entity>,
+        safe_start_entity: &mut Option<Entity>,
     ) {
         for (y, line) in tile_map.iter().enumerate() {
             for (x, tile) in line.iter().enumerate() {
@@ -220,6 +230,10 @@ impl BoardPlugin {
                         .id();
 
                     covered_tiles.insert(coordinates, entity);
+
+                    if safe_start_entity.is_none() && *tile == Tile::Empty {
+                        *safe_start_entity = Some(entity);
+                    }
                 });
 
                 match tile {
