@@ -1,5 +1,6 @@
 mod bounds;
 pub mod components;
+mod events;
 pub mod resources;
 mod systems;
 
