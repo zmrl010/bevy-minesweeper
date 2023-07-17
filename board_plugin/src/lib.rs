@@ -17,6 +17,7 @@ use resources::{tile::Tile, tile_map::TileMap, Board, BoardPosition, TileSize};
 
 pub struct BoardPlugin<T> {
     pub running_state: T,
+    pub paused_state: T,
 }
 
 impl<T: States> Plugin for BoardPlugin<T> {
@@ -31,10 +32,9 @@ impl<T: States> Plugin for BoardPlugin<T> {
                 )
                     .run_if(in_state(self.running_state.clone())),
             )
+            // .add_systems(Update, systems::uncover::uncover_tiles)
             .add_systems(OnExit(self.running_state.clone()), Self::cleanup_board)
             .add_event::<TileTriggerEvent>();
-
-        log::info!("Loaded Board Plugin");
 
         #[cfg(feature = "debug")]
         {
@@ -43,6 +43,8 @@ impl<T: States> Plugin for BoardPlugin<T> {
             app.register_type::<Bomb>();
             app.register_type::<Uncover>();
         }
+
+        log::info!("Loaded Board Plugin");
     }
 }
 

@@ -8,6 +8,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 pub enum AppState {
     #[default]
     InGame,
+    Paused,
     Out,
 }
 
@@ -31,9 +32,10 @@ fn main() {
         })
         .add_plugins(BoardPlugin {
             running_state: AppState::InGame,
+            paused_state: AppState::Paused,
         })
         .add_systems(Startup, camera_setup)
-        .add_systems(Update, update_state);
+        .add_systems(Update, handle_keyboard_input);
 
     #[cfg(feature = "debug")]
     app.add_plugins(WorldInspectorPlugin::new());
@@ -46,7 +48,7 @@ fn camera_setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn update_state(
+fn handle_keyboard_input(
     state: Res<State<AppState>>,
     mut next_state: ResMut<NextState<AppState>>,
     keys: Res<Input<KeyCode>>,
@@ -58,6 +60,19 @@ fn update_state(
             log::info!("clearing game");
 
             next_state.set(AppState::Out);
+        }
+    }
+    if keys.just_pressed(KeyCode::Escape) {
+        log::debug!("pause detected");
+
+        if state.get() == &AppState::InGame {
+            log::info!("pausing game");
+
+            next_state.set(AppState::Paused);
+        } else if state.get() == &AppState::Paused {
+            log::info!("resuming game");
+
+            next_state.set(AppState::InGame);
         }
     }
     if keys.just_pressed(KeyCode::G) {
