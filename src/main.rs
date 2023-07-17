@@ -12,8 +12,9 @@ pub enum AppState {
 }
 
 fn main() {
-    let mut app = App::new()
-        .add_state::<AppState>()
+    let mut app = App::new();
+
+    app.add_state::<AppState>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Mine Sweeper".to_string(),
@@ -31,7 +32,8 @@ fn main() {
         .add_plugins(BoardPlugin {
             running_state: AppState::InGame,
         })
-        .add_systems(Startup, camera_setup);
+        .add_systems(Startup, camera_setup)
+        .add_systems(Update, update_state);
 
     #[cfg(feature = "debug")]
     app.add_plugins(WorldInspectorPlugin::new());
@@ -44,14 +46,27 @@ fn camera_setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn update_state(mut state: ResMut<State<AppState>>, keys: Res<Input<KeyCode>>) {
+fn update_state(
+    state: Res<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
+    keys: Res<Input<KeyCode>>,
+) {
     if keys.just_pressed(KeyCode::C) {
         log::debug!("clearing detected");
-        let mut app_state = state.set_changed();
-        if let AppState::InGame = app_state {
+
+        if state.get() == &AppState::InGame {
             log::info!("clearing game");
 
-            *app_state = AppState::Out;
+            next_state.set(AppState::Out);
+        }
+    }
+    if keys.just_pressed(KeyCode::G) {
+        log::debug!("loading detected");
+
+        if state.get() == &AppState::Out {
+            log::info!("loading game");
+
+            next_state.set(AppState::InGame);
         }
     }
 }

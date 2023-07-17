@@ -21,7 +21,7 @@ pub struct BoardPlugin<T> {
 
 impl<T: States> Plugin for BoardPlugin<T> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, Self::create_board)
+        app.add_systems(OnEnter(self.running_state.clone()), Self::create_board)
             .add_systems(
                 Update,
                 (
@@ -30,6 +30,7 @@ impl<T: States> Plugin for BoardPlugin<T> {
                     systems::uncover::uncover_tiles,
                 ),
             )
+            .add_systems(OnExit(self.running_state.clone()), Self::cleanup_board)
             .add_event::<TileTriggerEvent>();
 
         log::info!("Loaded Board Plugin");
@@ -160,21 +161,19 @@ impl<T> BoardPlugin<T> {
 
     /// Generate bomb counter text 2D Bundle for a given value
     fn bomb_count_text_bundle(count: u8, font: Handle<Font>, size: f32) -> Text2dBundle {
-        let (text, color) = (
-            count.to_string(),
-            match count {
-                1 => Color::WHITE,
-                2 => Color::GREEN,
-                3 => Color::YELLOW,
-                4 => Color::ORANGE,
-                _ => Color::PURPLE,
-            },
-        );
+        let text_value = count.to_string();
+        let color = match count {
+            1 => Color::WHITE,
+            2 => Color::GREEN,
+            3 => Color::YELLOW,
+            4 => Color::ORANGE,
+            _ => Color::PURPLE,
+        };
 
         Text2dBundle {
             text: Text {
                 sections: vec![TextSection {
-                    value: text,
+                    value: text_value,
                     style: TextStyle {
                         color,
                         font,
@@ -274,5 +273,10 @@ impl<T> BoardPlugin<T> {
                 };
             }
         }
+    }
+
+    fn cleanup_board(board: Res<Board>, mut commands: Commands) {
+        commands.entity(board.entity).despawn_recursive();
+        commands.remove_resource::<Board>();
     }
 }
