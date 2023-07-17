@@ -15,14 +15,21 @@ use events::*;
 pub use resources::BoardOptions;
 use resources::{tile::Tile, tile_map::TileMap, Board, BoardPosition, TileSize};
 
-pub struct BoardPlugin;
+pub struct BoardPlugin<T> {
+    pub running_state: T,
+}
 
-impl Plugin for BoardPlugin {
+impl<T: States> Plugin for BoardPlugin<T> {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, Self::create_board)
-            .add_systems(Update, systems::input::input_handling)
-            .add_systems(Update, systems::uncover::trigger_event_handler)
-            .add_systems(Update, systems::uncover::uncover_tiles)
+            .add_systems(
+                Update,
+                (
+                    systems::input::handle_input,
+                    systems::uncover::trigger_event_handler,
+                    systems::uncover::uncover_tiles,
+                ),
+            )
             .add_event::<TileTriggerEvent>();
 
         log::info!("Loaded Board Plugin");
@@ -37,7 +44,7 @@ impl Plugin for BoardPlugin {
     }
 }
 
-impl BoardPlugin {
+impl<T> BoardPlugin<T> {
     /// system to generate the complete board
     pub fn create_board(
         mut commands: Commands,
@@ -85,7 +92,7 @@ impl BoardPlugin {
 
         let mut safe_start = None;
 
-        commands
+        let board_entity = commands
             .spawn_empty()
             .insert(Name::new("Board"))
             .insert(SpatialBundle {
@@ -118,7 +125,8 @@ impl BoardPlugin {
                     &mut covered_tiles,
                     &mut safe_start,
                 )
-            });
+            })
+            .id();
 
         commands.insert_resource(Board {
             tile_map,
@@ -128,6 +136,7 @@ impl BoardPlugin {
             },
             tile_size,
             covered_tiles,
+            entity: board_entity,
         });
 
         if options.safe_start {
