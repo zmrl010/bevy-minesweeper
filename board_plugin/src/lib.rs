@@ -28,7 +28,8 @@ impl<T: States> Plugin for BoardPlugin<T> {
                     systems::input::handle_input,
                     systems::uncover::trigger_event_handler,
                     systems::uncover::uncover_tiles,
-                ),
+                )
+                    .run_if(in_state(self.running_state.clone())),
             )
             .add_systems(OnExit(self.running_state.clone()), Self::cleanup_board)
             .add_event::<TileTriggerEvent>();
