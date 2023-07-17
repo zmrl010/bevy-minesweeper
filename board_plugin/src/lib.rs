@@ -15,14 +15,22 @@ use events::*;
 pub use resources::BoardOptions;
 use resources::{tile::Tile, tile_map::TileMap, Board, BoardPosition, TileSize};
 
-pub struct BoardPlugin;
+pub struct BoardPlugin<T> {
+    pub running_state: T,
+}
 
-impl Plugin for BoardPlugin {
+impl<T: States> Plugin for BoardPlugin<T> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, Self::create_board)
-            .add_systems(Update, systems::input::input_handling)
-            .add_systems(Update, systems::uncover::trigger_event_handler)
-            .add_systems(Update, systems::uncover::uncover_tiles)
+        app.add_systems(OnEnter(self.running_state.clone()), Self::create_board)
+            .add_systems(
+                Update,
+                (
+                    systems::input::handle_input,
+                    systems::uncover::trigger_event_handler,
+                    systems::uncover::uncover_tiles,
+                ),
+            )
+            .add_systems(OnExit(self.running_state.clone()), Self::cleanup_board)
             .add_event::<TileTriggerEvent>();
 
         log::info!("Loaded Board Plugin");
@@ -37,7 +45,7 @@ impl Plugin for BoardPlugin {
     }
 }
 
-impl BoardPlugin {
+impl<T> BoardPlugin<T> {
     /// system to generate the complete board
     pub fn create_board(
         mut commands: Commands,
@@ -83,7 +91,9 @@ impl BoardPlugin {
         let mut covered_tiles =
             HashMap::with_capacity((tile_map.width() * tile_map.height()).into());
 
-        commands
+        let mut safe_start = None;
+
+        let board_entity = commands
             .spawn_empty()
             .insert(Name::new("Board"))
             .insert(SpatialBundle {
@@ -114,8 +124,10 @@ impl BoardPlugin {
                     font,
                     Color::DARK_GRAY,
                     &mut covered_tiles,
+                    &mut safe_start,
                 )
-            });
+            })
+            .id();
 
         commands.insert_resource(Board {
             tile_map,
@@ -125,7 +137,14 @@ impl BoardPlugin {
             },
             tile_size,
             covered_tiles,
-        })
+            entity: board_entity,
+        });
+
+        if options.safe_start {
+            if let Some(entity) = safe_start {
+                commands.entity(entity).insert(Uncover);
+            }
+        }
     }
 
     /// Compute a tile size that matches the window according to the tile map size
@@ -142,21 +161,19 @@ impl BoardPlugin {
 
     /// Generate bomb counter text 2D Bundle for a given value
     fn bomb_count_text_bundle(count: u8, font: Handle<Font>, size: f32) -> Text2dBundle {
-        let (text, color) = (
-            count.to_string(),
-            match count {
-                1 => Color::WHITE,
-                2 => Color::GREEN,
-                3 => Color::YELLOW,
-                4 => Color::ORANGE,
-                _ => Color::PURPLE,
-            },
-        );
+        let text_value = count.to_string();
+        let color = match count {
+            1 => Color::WHITE,
+            2 => Color::GREEN,
+            3 => Color::YELLOW,
+            4 => Color::ORANGE,
+            _ => Color::PURPLE,
+        };
 
         Text2dBundle {
             text: Text {
                 sections: vec![TextSection {
-                    value: text,
+                    value: text_value,
                     style: TextStyle {
                         color,
                         font,
@@ -181,6 +198,7 @@ impl BoardPlugin {
         font: Handle<Font>,
         covered_tile_color: Color,
         covered_tiles: &mut HashMap<Coordinates, Entity>,
+        safe_start_entity: &mut Option<Entity>,
     ) {
         for (y, line) in tile_map.iter().enumerate() {
             for (x, tile) in line.iter().enumerate() {
@@ -220,6 +238,10 @@ impl BoardPlugin {
                         .id();
 
                     covered_tiles.insert(coordinates, entity);
+
+                    if safe_start_entity.is_none() && *tile == Tile::Empty {
+                        *safe_start_entity = Some(entity);
+                    }
                 });
 
                 match tile {
@@ -251,5 +273,10 @@ impl BoardPlugin {
                 };
             }
         }
+    }
+
+    fn cleanup_board(board: Res<Board>, mut commands: Commands) {
+        commands.entity(board.entity).despawn_recursive();
+        commands.remove_resource::<Board>();
     }
 }

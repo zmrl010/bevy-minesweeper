@@ -5,7 +5,7 @@ use bevy::log;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
-pub fn input_handling(
+pub fn handle_input(
     window_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
     mut button_event_reader: EventReader<MouseButtonInput>,
