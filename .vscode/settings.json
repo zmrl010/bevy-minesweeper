@@ -8,6 +8,7 @@
   ],
   "stylelint.enable": false,
   "cSpell.words": [
+    "linebreak",
     "pixeled"
   ]
 }
