@@ -18,19 +18,20 @@ fn main() {
     let mut app = App::new();
 
     app.add_state::<AppState>()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "Mine Sweeper".to_string(),
-                resolution: (700.0, 800.0).into(),
+        .add_plugins((
+            DefaultPlugins.set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Mine Sweeper".to_string(),
+                    resolution: (700.0, 800.0).into(),
+                    ..default()
+                }),
                 ..default()
             }),
-            ..default()
-        }))
-        .add_systems(Startup, setup_board)
-        .add_plugins(BoardPlugin {
-            running_state: AppState::InGame,
-        })
-        .add_systems(Startup, camera_setup)
+            BoardPlugin {
+                running_state: AppState::InGame,
+            },
+        ))
+        .add_systems(Startup, (setup_board, camera_setup))
         .add_systems(Update, handle_input);
 
     #[cfg(feature = "debug")]
