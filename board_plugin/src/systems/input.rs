@@ -1,4 +1,4 @@
-use crate::events::TileTriggerEvent;
+use crate::events::{TileMarkEvent, TileTriggerEvent};
 use crate::Board;
 use bevy::input::{mouse::MouseButtonInput, ButtonState};
 use bevy::log;
@@ -10,8 +10,10 @@ pub fn handle_input(
     board: Res<Board>,
     mut button_event_reader: EventReader<MouseButtonInput>,
     mut tile_trigger_event_writer: EventWriter<TileTriggerEvent>,
+    mut tile_mark_event_writer: EventWriter<TileMarkEvent>,
 ) {
     let Ok(window) = window_query.get_single() else {
+        log::debug!("Window not found.");
         return;
     };
 
@@ -24,12 +26,12 @@ pub fn handle_input(
                 if let Some(coordinates) = tile_coordinates {
                     match event.button {
                         MouseButton::Left => {
-                            // log::info!("Trying to uncover tile on {}", coordinates);
+                            log::info!("Trying to uncover tile on {}", coordinates);
                             tile_trigger_event_writer.send(TileTriggerEvent(coordinates));
                         }
                         MouseButton::Right => {
                             log::info!("Trying to mark tile on {}", coordinates);
-                            todo!("generate an event")
+                            tile_mark_event_writer.send(TileMarkEvent(coordinates));
                         }
                         _ => (),
                     }
