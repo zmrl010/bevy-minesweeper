@@ -7,6 +7,8 @@ pub struct Bounds2 {
 }
 
 impl Bounds2 {
+    #[inline]
+    #[must_use]
     pub fn in_bounds(&self, coords: Vec2) -> bool {
         coords.x >= self.position.x
             && coords.y >= self.position.y

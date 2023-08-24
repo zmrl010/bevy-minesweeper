@@ -3,7 +3,9 @@ use std::fmt::{self, Display, Formatter};
 use std::ops::{Add, Sub};
 
 #[cfg_attr(feature = "debug", derive(Reflect))]
-#[derive(Debug, Default, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Component)]
+#[derive(
+    Debug, Default, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Component,
+)]
 pub struct Coordinates {
     pub x: u16,
     pub y: u16,
@@ -11,6 +13,12 @@ pub struct Coordinates {
 
 impl Coordinates {
     pub fn new(x: u16, y: u16) -> Self {
+        Self { x, y }
+    }
+}
+
+impl From<(u16, u16)> for Coordinates {
+    fn from((x, y): (u16, u16)) -> Self {
         Self { x, y }
     }
 }

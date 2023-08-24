@@ -55,7 +55,7 @@ impl Default for BoardOptions {
             position: default(),
             tile_size: default(),
             tile_padding: 0.,
-            safe_start: true,
+            safe_start: false,
         }
     }
 }

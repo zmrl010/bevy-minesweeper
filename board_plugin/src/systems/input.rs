@@ -19,23 +19,27 @@ pub fn handle_input(
 
     for event in button_event_reader.iter() {
         if let ButtonState::Pressed = event.state {
-            let position = window.cursor_position();
-            if let Some(pos) = position {
-                log::trace!("Mouse button pressed: {:?} at {}", event.button, pos);
-                let tile_coordinates = board.mouse_position(window, pos);
-                if let Some(coordinates) = tile_coordinates {
-                    match event.button {
-                        MouseButton::Left => {
-                            log::info!("Trying to uncover tile on {}", coordinates);
-                            tile_trigger_event_writer.send(TileTriggerEvent(coordinates));
-                        }
-                        MouseButton::Right => {
-                            log::info!("Trying to mark tile on {}", coordinates);
-                            tile_mark_event_writer.send(TileMarkEvent(coordinates));
-                        }
-                        _ => (),
-                    }
+            let Some(pos) = window.cursor_position() else {
+                continue;
+            };
+
+            log::trace!("Mouse button pressed: {:?} at {}", event.button, pos);
+
+            let Some(coordinates) = board.mouse_position(window, pos) else {
+                continue;
+            };
+
+            match event.button {
+                MouseButton::Left => {
+                    log::info!("Trying to uncover tile on {}", coordinates);
+                    tile_trigger_event_writer
+                        .send(TileTriggerEvent(coordinates));
                 }
+                MouseButton::Right => {
+                    log::info!("Trying to mark tile on {}", coordinates);
+                    tile_mark_event_writer.send(TileMarkEvent(coordinates));
+                }
+                _ => (),
             }
         }
     }

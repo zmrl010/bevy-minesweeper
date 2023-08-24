@@ -1,6 +1,9 @@
-use bevy::{log, prelude::*};
+use bevy::{
+    log::{self, Level, LogPlugin},
+    prelude::*,
+};
 use board_plugin::{
-    resources::{BoardAssets, SpriteMaterial},
+    resources::{BoardAssets, BoardPosition, SpriteMaterial},
     BoardOptions, BoardPlugin,
 };
 
@@ -19,14 +22,19 @@ fn main() {
 
     app.add_state::<AppState>()
         .add_plugins((
-            DefaultPlugins.set(WindowPlugin {
-                primary_window: Some(Window {
-                    title: "Mine Sweeper".to_string(),
-                    resolution: (700.0, 800.0).into(),
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Minesweeper".to_string(),
+                        resolution: (700.0, 800.0).into(),
+                        ..default()
+                    }),
+                    ..default()
+                })
+                .set(LogPlugin {
+                    level: Level::INFO,
                     ..default()
                 }),
-                ..default()
-            }),
             BoardPlugin {
                 running_state: AppState::InGame,
             },
@@ -50,6 +58,9 @@ fn setup_board(
         bomb_count: 40,
         tile_padding: 1.0,
         safe_start: true,
+        position: BoardPosition::Centered {
+            offset: Vec3::new(0., 25., 0.),
+        },
         ..default()
     });
     commands.insert_resource(BoardAssets {
