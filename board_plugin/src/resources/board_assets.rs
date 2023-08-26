@@ -44,10 +44,10 @@ impl BoardAssets {
     pub fn get_bomb_color(&self, counter: u8) -> Color {
         let counter = counter.saturating_sub(1) as usize;
 
-        let color = self
-            .bomb_counter_colors
-            .get(counter)
-            .unwrap_or_else(|| self.bomb_counter_colors.last().unwrap_or(&Color::WHITE));
+        let color =
+            self.bomb_counter_colors.get(counter).unwrap_or_else(|| {
+                self.bomb_counter_colors.last().unwrap_or(&Color::WHITE)
+            });
 
         *color
     }

@@ -37,9 +37,11 @@ impl Default for BoardPosition {
 pub struct BoardOptions {
     /// Tile map size (width, height)
     pub map_size: (u16, u16),
+    /// Number of bombs spawned
     pub bomb_count: u16,
     /// Board world position
     pub position: BoardPosition,
+    /// Size of each individual tile
     pub tile_size: TileSize,
     /// Padding between tiles
     pub tile_padding: f32,

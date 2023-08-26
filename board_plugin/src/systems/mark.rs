@@ -22,10 +22,10 @@ pub fn mark_tiles(
                             sprite: Sprite {
                                 custom_size: Some(Vec2::splat(board.tile_size)),
                                 color: board_assets.flag_material.color,
-                                ..Default::default()
+                                ..default()
                             },
                             transform: Transform::from_xyz(0., 0., 1.),
-                            ..Default::default()
+                            ..default()
                         })
                         .insert(Name::new("Flag"));
                 });

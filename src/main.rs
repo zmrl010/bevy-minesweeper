@@ -67,15 +67,15 @@ fn setup_board(
         label: "Default".to_string(),
         board_material: SpriteMaterial {
             color: Color::WHITE,
-            ..Default::default()
+            ..default()
         },
         tile_material: SpriteMaterial {
             color: Color::DARK_GRAY,
-            ..Default::default()
+            ..default()
         },
         covered_tile_material: SpriteMaterial {
             color: Color::GRAY,
-            ..Default::default()
+            ..default()
         },
         bomb_counter_font: asset_server.load("fonts/pixeled.ttf"),
         bomb_counter_colors: BoardAssets::default_colors(),
