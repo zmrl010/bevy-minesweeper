@@ -9,10 +9,10 @@ pub struct Bounds2 {
 impl Bounds2 {
     #[inline]
     #[must_use]
-    pub fn in_bounds(&self, coords: Vec2) -> bool {
-        coords.x >= self.position.x
-            && coords.y >= self.position.y
-            && coords.x <= self.position.x + self.size.x
-            && coords.y <= self.position.y + self.size.y
+    pub fn in_bounds(&self, pos: Vec2) -> bool {
+        pos.x >= self.position.x
+            && pos.y >= self.position.y
+            && pos.x <= self.position.x + self.size.x
+            && pos.y <= self.position.y + self.size.y
     }
 }

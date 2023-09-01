@@ -1,4 +1,6 @@
-use crate::events::{BoardCompletedEvent, BombExplosionEvent, TileTriggerEvent};
+use crate::events::{
+    BoardCompletedEvent, BombExplosionEvent, TileTriggerEvent,
+};
 use crate::{Board, Bomb, BombNeighbor, Coordinates, Uncover};
 use bevy::log;
 use bevy::prelude::*;
@@ -8,8 +10,8 @@ pub fn trigger_event_handler(
     board: Res<Board>,
     mut tile_trigger_event_reader: EventReader<TileTriggerEvent>,
 ) {
-    for trigger_event in tile_trigger_event_reader.iter() {
-        if let Some(entity) = board.tile_to_uncover(&trigger_event.0) {
+    for TileTriggerEvent(coords) in tile_trigger_event_reader.iter() {
+        if let Some(entity) = board.tile_to_uncover(coords) {
             commands.entity(*entity).insert(Uncover);
         }
     }
@@ -32,7 +34,9 @@ pub fn uncover_tiles(
         };
 
         match board.try_uncover_tile(coords) {
-            Some(e) => log::debug!("Uncovered tile {} (entity: {:?})", coords, e),
+            Some(e) => {
+                log::debug!("Uncovered tile (entity: {:?})", e)
+            }
             None => log::debug!("Tried to uncover an already uncovered tile"),
         };
 

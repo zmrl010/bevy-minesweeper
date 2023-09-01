@@ -74,7 +74,7 @@ impl<T> BoardPlugin<T> {
         log::info!("{}", tile_map.console_output());
 
         let Ok(window) = window_query.get_single() else {
-            log::debug!("Window not found.");
+            log::error!("Window not found.");
             return;
         };
 
@@ -86,6 +86,7 @@ impl<T> BoardPlugin<T> {
                 (tile_map.width(), tile_map.height()),
             ),
         };
+        log::debug!("tile size: {tile_size}");
 
         let board_size = Vec2::new(
             tile_map.width() as f32 * tile_size,
@@ -151,9 +152,9 @@ impl<T> BoardPlugin<T> {
                 position: board_position.xy(),
                 size: board_size,
             },
-            marked_tiles: Vec::new(),
             tile_size,
             covered_tiles,
+            marked_tiles: Vec::new(),
             entity: board_entity,
         });
 
@@ -182,8 +183,8 @@ impl<T> BoardPlugin<T> {
                 let mut cmd = parent.spawn_empty();
                 cmd.insert(SpriteBundle {
                     sprite: Sprite {
-                        color: board_assets.tile_material.color,
                         custom_size: Some(Vec2::splat(size - padding)),
+                        color: board_assets.tile_material.color,
                         ..default()
                     },
                     texture: board_assets.tile_material.texture.clone(),

@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use bevy::{
     log::{self, Level, LogPlugin},
     prelude::*,
@@ -32,14 +34,15 @@ fn main() {
                     ..default()
                 })
                 .set(LogPlugin {
-                    level: Level::INFO,
+                    #[cfg(debug_assertions)]
+                    level: Level::TRACE,
                     ..default()
                 }),
             BoardPlugin {
                 running_state: AppState::InGame,
             },
         ))
-        .add_systems(Startup, (setup_board, camera_setup))
+        .add_systems(Startup, (setup_camera, setup_board))
         .add_systems(Update, handle_input);
 
     #[cfg(feature = "debug")]
@@ -55,7 +58,7 @@ fn setup_board(
 ) {
     commands.insert_resource(BoardOptions {
         map_size: (20, 20),
-        bomb_count: 40,
+        bomb_count: 50,
         tile_padding: 1.0,
         safe_start: true,
         position: BoardPosition::Centered {
@@ -92,7 +95,7 @@ fn setup_board(
     next_state.set(AppState::InGame);
 }
 
-fn camera_setup(mut commands: Commands) {
+fn setup_camera(mut commands: Commands) {
     // 2D orthographic camera
     commands.spawn(Camera2dBundle::default());
 }

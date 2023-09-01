@@ -5,7 +5,7 @@ edition = "2021"
 
 [features]
 default = []
-debug = ["board_plugin/debug", "bevy-inspector-egui"]
+debug = ["board_plugin/debug", "bevy-inspector-egui", "bevy/dynamic_linking"]
 
 [dependencies]
 bevy.workspace = true
@@ -19,11 +19,7 @@ members = [
 ]
 
 [workspace.dependencies]
-# Remember to revert this before releasing your game! 
-# Otherwise you will need to include libbevy_dylib
-# alongside your game if you want it to run.
-bevy = { version = "0.11.0", features = ["dynamic_linking"] }
-# bevy = "0.11"
+bevy = "0.11"
 
 [profile.dev]
 opt-level = 1

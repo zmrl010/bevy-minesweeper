@@ -8,20 +8,27 @@ pub struct Board {
     pub tile_map: TileMap,
     pub bounds: Bounds2,
     pub tile_size: f32,
-    pub covered_tiles: HashMap<Coordinates, Entity>,
     pub entity: Entity,
+    pub covered_tiles: HashMap<Coordinates, Entity>,
     pub marked_tiles: Vec<Coordinates>,
 }
 
 impl Board {
     /// Translate mouse position to board coordinates
-    pub fn mouse_position(&self, window: &Window, position: Vec2) -> Option<Coordinates> {
+    pub fn mouse_position(&self, window: &Window) -> Option<Coordinates> {
+        let Some(position) = window.cursor_position() else {
+            return None;
+        };
+        log::trace!("Mouse position: {}", position);
+
         let window_size = Vec2::new(window.width(), window.height());
         let position = position - window_size / 2.;
+        log::trace!("Adjusted position: {}", position);
 
         if !self.bounds.in_bounds(position) {
             return None;
         }
+        log::trace!("In bounds {:?}", self.bounds);
 
         let coordinates = position - self.bounds.position;
 
@@ -48,7 +55,10 @@ impl Board {
         self.covered_tiles.remove(coords)
     }
 
-    pub fn try_toggle_mark(&mut self, coords: &Coordinates) -> Option<(Entity, bool)> {
+    pub fn try_toggle_mark(
+        &mut self,
+        coords: &Coordinates,
+    ) -> Option<(Entity, bool)> {
         let entity = *self.covered_tiles.get(coords)?;
         let mark = self.marked_tiles.contains(coords);
 
